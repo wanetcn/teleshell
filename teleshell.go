@@ -66,6 +66,16 @@ func New(token, username, onstartscript string) (*TeleShell, error) {
 	// telebot docs
 	settings := telebot.Settings{Token: token,
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second}}
+
+	var varEnvhttpProxy = os.Getenv("http_proxy")
+	if len(varEnvhttpProxy) > 0 {
+		proxyUrl, _ := url.Parse(varEnvhttpProxy)     //set http or sock5 proxy
+		myClient := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}} 
+		settings = telebot.Settings{Token: token,
+			Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
+			Client: myClient}
+
+	}
 	bot, err := telebot.NewBot(settings)
 	if err != nil {
 		return nil, err
